@@ -4,7 +4,6 @@
   </qresource>
   <qresource prefix="Graphics">
     <file>Images/twitter_default.jpg</file>
-    <file>Images/Add.png</file>
     <file>Images/AddHover.png</file>
     <file>Images/ArrowDown.png</file>
     <file>Images/ArrowDownDisabled.png</file>
@@ -44,7 +43,6 @@
     <file>Images/Contrast.png</file>
     <file>Images/ContrastSmall.png</file>
     <file>Images/ContrastSmallHover.png</file>
-    <file>Images/Crop.png</file>
     <file>Images/CropSmall.png</file>
     <file>Images/CropSmallHover.png</file>
     <file>Images/CustomCommand.png</file>
@@ -68,7 +66,6 @@
     <file>Images/GpiOutput.png</file>
     <file>Images/GpiOutputSmall.png</file>
     <file>Images/GpiOutputSmallHover.png</file>
-    <file>Images/Grid.png</file>
     <file>Images/GridSmall.png</file>
     <file>Images/GridSmallHover.png</file>
     <file>Images/Group.png</file>
@@ -90,7 +87,6 @@
     <file>Images/MasterVolumeOff.png</file>
     <file>Images/MasterVolumeOn.png</file>
     <file>Images/Mixer.png</file>
-    <file>Images/Movie.png</file>
     <file>Images/MovieSmall.png</file>
     <file>Images/MovieSmallHover.png</file>
     <file>Images/New.png</file>
@@ -112,7 +108,6 @@
     <file>Images/RadiobuttonUnchecked.png</file>
     <file>Images/RadiobuttonUncheckedHover.png</file>
     <file>Images/RadiobuttonUncheckedPressed.png</file>
-    <file>Images/Remove.png</file>
     <file>Images/RemoveHover.png</file>
     <file>Images/Saturation.png</file>
     <file>Images/SaturationSmall.png</file>
@@ -145,5 +140,223 @@
     <file>Images/Volume.png</file>
     <file>Images/VolumeSmall.png</file>
     <file>Images/VolumeSmallHover.png</file>
+    <file>Images/Phone.png</file>
+    <file>Images/Box3.png</file>
+    <file>Images/Upload.png</file>
+    <file>Images/Download.png</file>
+    <file>Images/Reply 2.png</file>
+    <file>Images/Add 2.png</file>
+    <file>Images/Remove 2.png</file>
+    <file>Images/Bookmark2.png</file>
+    <file>Images/Bookmark.png</file>
+    <file>Images/Microphone 2.png</file>
+    <file>Images/Microphone.png</file>
+    <file>Images/Turn 2.png</file>
+    <file>Images/Turn.png</file>
+    <file>Images/Turn Right.png</file>
+    <file>Images/Turn Left.png</file>
+    <file>Images/Gift.png</file>
+    <file>Images/Bell.png</file>
+    <file>Images/Trails.png</file>
+    <file>Images/Error.png</file>
+    <file>Images/Help.png</file>
+    <file>Images/Burn.png</file>
+    <file>Images/Folder.png</file>
+    <file>Images/Folder Add.png</file>
+    <file>Images/Phone 2.png</file>
+    <file>Images/Turn Off 2.png</file>
+    <file>Images/Eject2.png</file>
+    <file>Images/Pen.png</file>
+    <file>Images/Pin.png</file>
+    <file>Images/Circle Arrow Right 2.png</file>
+    <file>Images/Circle Arrow Left 2.png</file>
+    <file>Images/Circle Arrow Down 2.png</file>
+    <file>Images/Circle Arrow Up 2.png</file>
+    <file>Images/Circle Arrow Down.png</file>
+    <file>Images/Circle Arrow Up.png</file>
+    <file>Images/Circle Arrow Left.png</file>
+    <file>Images/Circle Arrow Right.png</file>
+    <file>Images/Document Remove.png</file>
+    <file>Images/Document Add.png</file>
+    <file>Images/Document.png</file>
+    <file>Images/Document 2.png</file>
+    <file>Images/Mail Opened.png</file>
+    <file>Images/Flag2.png</file>
+    <file>Images/Flag.png</file>
+    <file>Images/Cloud Error.png</file>
+    <file>Images/Cloud Remove.png</file>
+    <file>Images/Cloud Add.png</file>
+    <file>Images/Cloud Download.png</file>
+    <file>Images/Cloud Upload.png</file>
+    <file>Images/Cloud.png</file>
+    <file>Images/Safari.png</file>
+    <file>Images/Paperclip.png</file>
+    <file>Images/Printer2.png</file>
+    <file>Images/Printer1.png</file>
+    <file>Images/Printer.png</file>
+    <file>Images/dribbble.png</file>
+    <file>Images/Key.png</file>
+    <file>Images/Keyhole.png</file>
+    <file>Images/at.png</file>
+    <file>Images/Library.png</file>
+    <file>Images/Plane.png</file>
+    <file>Images/Shopping Basket.png</file>
+    <file>Images/Shopping Cart.png</file>
+    <file>Images/Volume Down.png</file>
+    <file>Images/Volume Up.png</file>
+    <file>Images/Underlined.png</file>
+    <file>Images/Italic.png</file>
+    <file>Images/Bold.png</file>
+    <file>Images/Globe 2.png</file>
+    <file>Images/User2.png</file>
+    <file>Images/Thumb Up.png</file>
+    <file>Images/Thumb Down.png</file>
+    <file>Images/Arrow Right 2.png</file>
+    <file>Images/Notes 2.png</file>
+    <file>Images/Stop.png</file>
+    <file>Images/Pin2.png</file>
+    <file>Images/Calculator.png</file>
+    <file>Images/Keyboard.png</file>
+    <file>Images/Arrow Down 2.png</file>
+    <file>Images/Arrow Up 2.png</file>
+    <file>Images/Arrow Left.png</file>
+    <file>Images/Arrow Right.png</file>
+    <file>Images/Shortcut.png</file>
+    <file>Images/Action.png</file>
+    <file>Images/Heart.png</file>
+    <file>Images/Study.png</file>
+    <file>Images/Settings.png</file>
+    <file>Images/Reply To All.png</file>
+    <file>Images/Reply.png</file>
+    <file>Images/Desktop2.png</file>
+    <file>Images/Desktop.png</file>
+    <file>Images/Glasses2.png</file>
+    <file>Images/Glasses.png</file>
+    <file>Images/Turn Off.png</file>
+    <file>Images/Settings2.png</file>
+    <file>Images/Fullscreen Off.png</file>
+    <file>Images/Fullscreen.png</file>
+    <file>Images/Calendar w Number.png</file>
+    <file>Images/Calendar.png</file>
+    <file>Images/Copyright.png</file>
+    <file>Images/Conversation.png</file>
+    <file>Images/Speech Bubble.png</file>
+    <file>Images/Sync.png</file>
+    <file>Images/Reload.png</file>
+    <file>Images/Case2.png</file>
+    <file>Images/iPod Shuffle.png</file>
+    <file>Images/iPod Nano.png</file>
+    <file>Images/Stamp.png</file>
+    <file>Images/Bin.png</file>
+    <file>Images/Waterdrop.png</file>
+    <file>Images/Light.png</file>
+    <file>Images/Notes.png</file>
+    <file>Images/SD Card.png</file>
+    <file>Images/Disk2.png</file>
+    <file>Images/Disk.png</file>
+    <file>Images/Headphones.png</file>
+    <file>Images/Eject.png</file>
+    <file>Images/Columns.png</file>
+    <file>Images/Box Filled.png</file>
+    <file>Images/Box2.png</file>
+    <file>Images/CD.png</file>
+    <file>Images/CoverFlow.png</file>
+    <file>Images/List.png</file>
+    <file>Images/Grid2.png</file>
+    <file>Images/List2.png</file>
+    <file>Images/Grid.png</file>
+    <file>Images/Videocam.png</file>
+    <file>Images/HideLeft.png</file>
+    <file>Images/ShowRight.png</file>
+    <file>Images/Show.png</file>
+    <file>Images/Hide.png</file>
+    <file>Images/Move backward.png</file>
+    <file>Images/Move foreward.png</file>
+    <file>Images/Battery.png</file>
+    <file>Images/Eye.png</file>
+    <file>Images/Movie.png</file>
+    <file>Images/Podcast.png</file>
+    <file>Images/Search.png</file>
+    <file>Images/Warning.png</file>
+    <file>Images/Tag.png</file>
+    <file>Images/Box.png</file>
+    <file>Images/USB.png</file>
+    <file>Images/Wikipedia.png</file>
+    <file>Images/Instapaper.png</file>
+    <file>Images/Postboxes.png</file>
+    <file>Images/Postbox.png</file>
+    <file>Images/Picture.png</file>
+    <file>Images/Vimeo.png</file>
+    <file>Images/Flickr.png</file>
+    <file>Images/Ruler.png</file>
+    <file>Images/Forrst.png</file>
+    <file>Images/Google.png</file>
+    <file>Images/Triangle Line.png</file>
+    <file>Images/Triangle.png</file>
+    <file>Images/Genius2.png</file>
+    <file>Images/Genius.png</file>
+    <file>Images/Laptop.png</file>
+    <file>Images/Chess.png</file>
+    <file>Images/Lock.png</file>
+    <file>Images/Exposé.png</file>
+    <file>Images/Crop With Raster.png</file>
+    <file>Images/Crop.png</file>
+    <file>Images/Remove.png</file>
+    <file>Images/Add.png</file>
+    <file>Images/Cancel.png</file>
+    <file>Images/Music.png</file>
+    <file>Images/Replay.png</file>
+    <file>Images/Shuffle.png</file>
+    <file>Images/AirPlay.png</file>
+    <file>Images/Mail.png</file>
+    <file>Images/Geo.png</file>
+    <file>Images/Mouse.png</file>
+    <file>Images/Star Line.png</file>
+    <file>Images/Star.png</file>
+    <file>Images/Polygon.png</file>
+    <file>Images/Polygon Line.png</file>
+    <file>Images/Rounded Rectangle Line.png</file>
+    <file>Images/Rounded Rectangle.png</file>
+    <file>Images/Rectangle.png</file>
+    <file>Images/Rectangle Line.png</file>
+    <file>Images/Circle Line.png</file>
+    <file>Images/Circle.png</file>
+    <file>Images/Price.png</file>
+    <file>Images/Table.png</file>
+    <file>Images/RSS.png</file>
+    <file>Images/Globe.png</file>
+    <file>Images/tumblr.png</file>
+    <file>Images/Clock.png</file>
+    <file>Images/Form.png</file>
+    <file>Images/Pause.png</file>
+    <file>Images/Play.png</file>
+    <file>Images/Camera.png</file>
+    <file>Images/Case.png</file>
+    <file>Images/Home.png</file>
+    <file>Images/Right Arrow.png</file>
+    <file>Images/Back.png</file>
+    <file>Images/Next.png</file>
+    <file>Images/User.png</file>
+    <file>Images/Textfield.png</file>
+    <file>Images/Chart.png</file>
+    <file>Images/Smiley.png</file>
+    <file>Images/Right-Adjusted.png</file>
+    <file>Images/Full Justification.png</file>
+    <file>Images/Left-Adjusted.png</file>
+    <file>Images/Center.png</file>
+    <file>Images/Locate.png</file>
+    <file>Images/Bluetooth.png</file>
+    <file>Images/Wifi.png</file>
+    <file>Images/Computer.png</file>
+    <file>Images/Tablet.png</file>
+    <file>Images/Facebook.png</file>
+    <file>Images/Book.png</file>
+    <file>Images/Twitter.png</file>
+    <file>Images/A.png</file>
+    <file>Images/Arrow Down.png</file>
+    <file>Images/Arrow Up.png</file>
+    <file>Images/Left Arrow.png</file>
+    <file>Images/Info.png</file>
+    <file>Images/Invite.png</file>
   </qresource>
 </RCC>
