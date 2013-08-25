@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 import sys
 import logging
 import socket
@@ -31,6 +32,10 @@ class Main(QtGui.QMainWindow):
 
         # self.ui.get_tweets_btn.clicked.connect(self.SearchTweets)
         self.ui.console_go.clicked.connect(self.ConsoleCommand)
+        QtCore.QObject.connect(self.ui.Console_TweetSingle, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(4))
+        QtCore.QObject.connect(self.ui.Console_TeamMatch, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(5))
+        QtCore.QObject.connect(self.ui.Console_Players1, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(6))
+        QtCore.QObject.connect(self.ui.Console_Players2, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(7))
         self.ui.Console_ComingUp.clicked.connect(lambda: self.ProcessCommand(1))
         self.ui.Console_Sponsors.clicked.connect(lambda: self.ProcessCommand(2))
         self.ui.Console_TweetFeed.clicked.connect(lambda: self.ProcessCommand(3))
@@ -41,10 +46,11 @@ class Main(QtGui.QMainWindow):
         self.LoadSettings()
 
     def LoadSettings(self):
-        self.BGVideo = "HEATHD"
+        self.BGVideo = ""
         self.BUG = "BUG"
         self.ProcessCommand(self.LastCG)
-        self.sendCommand("CLEAR 1\r\nPLAY 1-1 " + self.BGVideo + " LOOP\r\nPLAY 1-10 CSGO LOOP")
+        # PLAY 1-1 " + self.BGVideo + " LOOP
+        self.sendCommand("CLEAR 1\r\n\r\nPLAY 1-10 MUSIC LOOP")
         self.TweetList = []
 
     def Quit(self):
@@ -54,6 +60,8 @@ class Main(QtGui.QMainWindow):
 
 
     def ProcessCommand(self, cmdnum=0):
+        print cmdnum
+        print self.LastCG
         if self.LastCG == 0:
             # Hide Nothing
             print "NO LAST BUTTON"
@@ -64,13 +72,43 @@ class Main(QtGui.QMainWindow):
             self.sendCommand(str(cmd))
 
         if self.LastCG == 2:
-            cmd = "MIXER 1-10 FILL 0 0 1 1 25 easeinoutback\r\nMIXER 1-10 OPACITY 1 25 easeinoutback\r\nMIXER 1-10 BLEND NORMAL"
+            cmd = "MIXER 1-10 FILL 0 0 1 1 25 easeinoutback\r\nMIXER 1-10 OPACITY 1 25 easeinoutback"
             self.ui.Console_Sponsors.setChecked(0)
             self.sendCommand(str(cmd))
 
         if self.LastCG == 3:
-            cmd = "MIXER 1-10 FILL 0 0 1 1 25 easeinoutback\r\nSTOP 1-9\r\nCG 1 STOP 20 \"DEMO\" 1"
+            cmd = "MIXER 1-9 OPACITY 0 25 easeinoutback\r\nCG 1 STOP 20 \"DEMO\" 1\r\nMIXER 1-10 FILL 0 0 1 1 25 easeinoutback"
             self.ui.Console_TweetFeed.setChecked(0)
+            self.sendCommand(str(cmd))
+
+        if self.LastCG == 4:
+            cmd = "CG 1 STOP 20 \"SINGLE\" 1"
+            self.ui.Console_TweetSingle.setChecked(0)
+            self.sendCommand(str(cmd))
+
+        if self.LastCG == 5:
+            cmd = "CG 1 STOP 20 \"TEAMMATCH\" 1"
+            self.ui.Console_TeamMatch.setChecked(0)
+            self.sendCommand(str(cmd))
+
+        if self.LastCG == 6:
+            self.ui.Console_Players1.setChecked(0)
+            if cmdnum == 6:
+                cmd = "CG 1 STOP 20 \"DEMO\" 1\r\nPLAY 1-11 LINEUPOUT"
+            elif not cmdnum == 7:
+                cmd = "CG 1 STOP 20 \"DEMO\" 1\r\nSTOP 1-11"
+            else:
+                cmd = "CG 1 STOP 20 \"DEMO\" 1\r\n"
+            self.sendCommand(str(cmd))
+
+        if self.LastCG == 7:
+            self.ui.Console_Players2.setChecked(0)
+            if cmdnum == 7:
+                cmd = "CG 1 STOP 20 \"DEMO\" 1\r\nPLAY 1-11 LINEUPOUT"
+            elif not cmdnum == 6:
+                cmd = "CG 1 STOP 20 \"DEMO\" 1\r\nSTOP 1-11"
+            else:
+                cmd = "CG 1 STOP 20 \"DEMO\" 1\r\n"
             self.sendCommand(str(cmd))
 
         if not cmdnum == self.LastCG:
@@ -79,23 +117,50 @@ class Main(QtGui.QMainWindow):
                 self.LastCG = cmdnum
 
             if cmdnum == 1:
-                # Coming Up Next
                 self.ui.Console_ComingUp.setChecked(1)
                 cmd = "MIXER 1-10 FILL 0 0 0.8 0.8 25 easeinoutback"
                 self.sendCommand(str(cmd))
                 self.LastCG = cmdnum
 
             if cmdnum == 2:
-                # Show Sponsors
                 self.ui.Console_Sponsors.setChecked(1)
-                cmd = "MIXER 1-10 FILL 0.3 0.2 0.4 0.4 25 easeinoutback\r\nMIXER 1-10 OPACITY 1 25 easeinoutback\r\nMIXER 1-10 BLEND OVERLAY"
+                cmd = "MIXER 1-10 FILL 0.3 0.2 0.4 0.4 25 easeinoutback\r\nMIXER 1-10 OPACITY 1 25 easeinoutback"
                 self.sendCommand(str(cmd))
                 self.LastCG = cmdnum
 
             if cmdnum == 3:
-                # Show Sponsors
                 self.ui.Console_TweetFeed.setChecked(1)
-                cmd = "MIXER 1-10 FILL 0.05 0.2 0.6 0.6 25 easeinoutback\r\nPLAY 1-9 FEEDBG\r\nCG 1 ADD 20 \"DEMO\" 1"
+                cmd = "MIXER 1-10 FILL 0.05 0.2 0.6 0.6 25 easeinoutback\r\nMIXER 1-9 OPACITY 1 25 easeinoutback\r\nPLAY 1-9 FEEDBG\r\nCG 1 ADD 20 \"DEMO\" 1"
+                self.sendCommand(str(cmd))
+                self.LastCG = cmdnum
+
+            if cmdnum == 4:
+                self.ui.Console_TweetSingle.setChecked(1)
+                cmd = "CG 1 ADD 20 \"SINGLE\" 1"
+                self.sendCommand(str(cmd))
+                self.LastCG = cmdnum
+
+            if cmdnum == 5:
+                self.ui.Console_TeamMatch.setChecked(1)
+                cmd = "CG 1 ADD 20 \"TEAMMATCH\" 1"
+                self.sendCommand(str(cmd))
+                self.LastCG = cmdnum
+
+            if cmdnum == 6:
+                self.ui.Console_Players1.setChecked(1)
+                if self.LastCG == 7:
+                    cmd = "PLAY 1-11 LINEUPSWAP\r\nCG 1 ADD 20 \"DEMO\" 1"
+                else:
+                    cmd = "PLAY 1-11 LINEUPIN\r\nCG 1 ADD 20 \"DEMO\" 1"
+                self.sendCommand(str(cmd))
+                self.LastCG = cmdnum
+
+            if cmdnum == 7:
+                self.ui.Console_Players2.setChecked(1)
+                if self.LastCG == 6:
+                    cmd = "PLAY 1-11 LINEUPSWAP\r\nCG 1 ADD 20 \"DEMO\" 1"
+                else:
+                    cmd = "PLAY 1-11 LINEUPIN\r\nCG 1 ADD 20 \"DEMO\" 1"
                 self.sendCommand(str(cmd))
                 self.LastCG = cmdnum
 
@@ -146,11 +211,14 @@ class Main(QtGui.QMainWindow):
             search = twitter.search(q=term, result_type='recent', count=tweetcount)
             #for tweet in search['statuses']:
             for tweetnum, tweet in enumerate(search['statuses']):
+                print tweet
                 # {u'contributors': None, u'truncated': False, u'text': u'In our third of five LCS games this week, we face scoreboard leaders Cloud 9 http://t.co/Hg1ouV1Ihn', u'in_reply_to_status_id': None, u'id': 368076075248545792L, u'favorite_count': 0, u'source': u'web', u'retweeted': False, u'coordinates': None, u'entities': {u'symbols': [], u'user_mentions': [], u'hashtags': [], u'urls': [{u'url': u'http://t.co/Hg1ouV1Ihn', u'indices': [77, 99], u'expanded_url': u'http://www.team-dignitas.net/articles/news/League-of-Legends/3794/LCS-Team-Dignitas-vs.-Cloud-9/', u'display_url': u'team-dignitas.net/articles/news/\u2026'}]}, u'in_reply_to_screen_name': None, u'in_reply_to_user_id': None, u'retweet_count': 0, u'id_str': u'368076075248545792', u'favorited': False, u'user': {u'follow_request_sent': None, u'profile_use_background_image': True, u'default_profile_image': False, u'id': 20734751, u'verified': False, u'profile_text_color': u'0C3E53', u'profile_image_url_https': u'https://si0.twimg.com/profile_images/958663238/fullcolor-head_normal.jpg', u'profile_sidebar_fill_color': u'FFF7CC', u'entities': {u'url': {u'urls': [{u'url': u'http://t.co/9oS5fsRQyt', u'indices': [0, 22], u'expanded_url': u'http://www.team-dignitas.net', u'display_url': u'team-dignitas.net'}]}, u'description': {u'urls': []}}, u'followers_count': 45843, u'profile_sidebar_border_color': u'000000', u'id_str': u'20734751', u'profile_background_color': u'BADFCD', u'listed_count': 486, u'profile_background_image_url_https': u'https://si0.twimg.com/profile_background_images/378800000040895525/bde7e8dc3837d2737376336a13fb0dac.jpeg', u'utc_offset': 3600, u'statuses_count': 13908, u'description': u'Team Dignitas - The official twitter page for one of the worlds leading professional gaming companies.', u'friends_count': 430, u'location': u'Surrey', u'profile_link_color': u'FF0000', u'profile_image_url': u'http://a0.twimg.com/profile_images/958663238/fullcolor-head_normal.jpg', u'following': None, u'geo_enabled': True, u'profile_banner_url': u'https://pbs.twimg.com/profile_banners/20734751/1352062186', u'profile_background_image_url': u'http://a0.twimg.com/profile_background_images/378800000040895525/bde7e8dc3837d2737376336a13fb0dac.jpeg', u'screen_name': u'TeamDignitas', u'lang': u'en', u'profile_background_tile': False, u'favourites_count': 25, u'name': u'Team Dignitas', u'notifications': None, u'url': u'http://t.co/9oS5fsRQyt', u'created_at': u'Fri Feb 13 00:20:50 +0000 2009', u'contributors_enabled': False, u'time_zone': u'London', u'protected': False, u'default_profile': False, u'is_translator': False}, u'geo': None, u'in_reply_to_user_id_str': None, u'possibly_sensitive': False, u'lang': u'en', u'created_at': u'Thu Aug 15 18:25:49 +0000 2013', u'in_reply_to_status_id_str': None, u'place': None, u'metadata': {u'iso_language_code': u'en', u'result_type': u'recent'}}
                 tweetitem = Tweet(tweet['created_at'], tweet['user']['name'], tweet['user']['screen_name'],
                                   tweet['text'], tweet['entities']['hashtags'], tweet['id_str'], tweet['user']['id'],
                                   tweet['metadata']['iso_language_code'], tweet['user']['profile_image_url'])
-                self.TweetList.append(tweetitem)
+                if tweet['metadata']['iso_language_code'] == 'en':
+                    print 'nope'
+                    self.TweetList.append(tweetitem)
                 # for index, detail in enumerate(tweetdetails):
                 #     print tweetnum, index, detail
                 #
@@ -167,7 +235,6 @@ class Main(QtGui.QMainWindow):
         tweets = 0
         TweetXML = '<templateData>'
         for SingleTweet in self.TweetList:
-            print SingleTweet.HashTags
             TweetXML = TweetXML + """
     <componentData id=\"fullname""" + str(tweets) + """\">
 		<data id="text" value=\"""" + SingleTweet.FullName + """\"/>
