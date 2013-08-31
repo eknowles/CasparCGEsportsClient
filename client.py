@@ -1,20 +1,69 @@
 #!/usr/bin/python
 
+# pyodbc, twython
+# MySQL-python @ http://sourceforge.net/projects/mysql-python/files/mysql-python/1.2.3/MySQL-python-1.2.3.win32-py2.7.msi/download
+
 import sys
 import logging
 import socket
 import re
-
-from PyQt4 import QtGui, QtCore
+import elementtree.ElementTree as ET
+import xml.etree.ElementTree as xml
+import MySQLdb
+from PyQt4 import QtGui, QtCore, QtSql
 from twython import Twython
 
 from windowUi import Ui_MainWindow
+from Rundown import Ui_Rundown
 
 
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(levelname)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p',
                     handlers=[logging.FileHandler("console.log"), logging.StreamHandler()])
 logging.info('Program Launched')
+
+class Database():
+    def __init__(self):
+        self.db_host = "eknowles.com"
+        self.db_user = "admin_escg"
+        self.db_pass = "p4e9@;FImZ8["
+        self.db_name = "admin_escg"
+
+    def openConn(self):
+        self.db = MySQLdb.connect(self.db_host, self.db_user, self.db_pass, self.db_name)
+
+    def closeConn(self):
+        self.db.close()
+
+    def writeValues(self, sql):
+        self.openConn()
+        self.cursor = self.db.cursor()
+        self.cursor.execute(sql)
+        ret = self.cursor.fetchall()
+        self.closeConn()
+        return ret
+
+class RundownDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        super(RundownDialog, self).__init__(parent)
+
+        # Set up the user interface from Designer.
+        self.ui = Ui_Rundown()
+        self.ui.setupUi(self)
+
+    def accept(self):
+        if self.ui.title.text() == '':
+            title = 'NULL'
+        else:
+            title = "'" + str(self.ui.title.text()) + "'"
+        self.sql = "SELECT * FROM events"
+        #self.sql = "INSERT INTO admin_escg.schedule (start, channel_id, event_id, team1_id, team2_id, title, caster1_id, caster2_id) VALUES ('2013-08-26 12:00:00', '1', '1', '1', '2', "+title+", '1', '2');"
+        self.submitForm()
+        super(RundownDialog, self).accept()
+
+    def submitForm(self):
+        db = Database()
+        db.writeValues(self.sql)
 
 
 class Main(QtGui.QMainWindow):
@@ -26,31 +75,204 @@ class Main(QtGui.QMainWindow):
         # instance variables
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        # sshFile="Default.css"
+        # with open(sshFile,"r") as fh:
+        #     self.setStyleSheet(fh.read())
+
         self.LastCG = 0
+
+        self.APIurl = "http://eknowles.com/api/"
+        self.PlayersXML = self.APIurl + "playerslist.php?export=xml"
+        self.TeamsXML = self.APIurl + "teamslist.php?export=xml"
+        self.EventsXML = self.APIurl + "eventslist.php?export=xml"
+        self.Team_EventXML = self.APIurl + "link_team_eventlist.php?export=xml"
+        self.Player_TeamXML = self.APIurl + "link_player_teamlist.php?export=xml"
+
 
         QtCore.QObject.connect(self.ui.get_tweets_btn, QtCore.SIGNAL('clicked()'), self.SearchTweets)
 
         # self.ui.get_tweets_btn.clicked.connect(self.SearchTweets)
-        self.ui.console_go.clicked.connect(self.ConsoleCommand)
+        QtCore.QObject.connect(self.ui.console_go, QtCore.SIGNAL('clicked()'), self.ConsoleCommand)
+        QtCore.QObject.connect(self.ui.Console_ComingUp, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(1))
+        QtCore.QObject.connect(self.ui.Console_Sponsors, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(2))
+        QtCore.QObject.connect(self.ui.Console_TweetFeed, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(3))
         QtCore.QObject.connect(self.ui.Console_TweetSingle, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(4))
         QtCore.QObject.connect(self.ui.Console_TeamMatch, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(5))
         QtCore.QObject.connect(self.ui.Console_Players1, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(6))
         QtCore.QObject.connect(self.ui.Console_Players2, QtCore.SIGNAL('clicked()'), lambda: self.ProcessCommand(7))
-        self.ui.Console_ComingUp.clicked.connect(lambda: self.ProcessCommand(1))
-        self.ui.Console_Sponsors.clicked.connect(lambda: self.ProcessCommand(2))
-        self.ui.Console_TweetFeed.clicked.connect(lambda: self.ProcessCommand(3))
+
+        #Schedule Signals
+        QtCore.QObject.connect(self.ui.Schedule_Add, QtCore.SIGNAL('clicked()'), self.AddRundown)
+        QtCore.QObject.connect(self.ui.Schedule_Remove, QtCore.SIGNAL('clicked()'), self.Schedule_Remove)
+
+        # Event Signals
+        QtCore.QObject.connect(self.ui.UpdateEvents, QtCore.SIGNAL('clicked()'), self.UpdateEvents)
+
+
         self.ui.actionReload_Client.triggered.connect(self.LoadSettings)
         self.ui.actionQuit.triggered.connect(self.Quit)
 
         # Load Primary Settings (First load)
         self.LoadSettings()
 
+
+        self.clocktimer = QtCore.QTimer(self)
+        self.clocktimer.timeout.connect(self.showTime)
+        self.clocktimer.start(1000)
+
+        self.showTime()
+        self.ModifyRundown = RundownDialog(self)
+
+        escg = QtSql.QSqlDatabase.addDatabase("QMYSQL")
+        escg.setHostName("eknowles.com")
+        escg.setDatabaseName("admin_escg")
+        escg.setUserName("admin_escg")
+        escg.setPassword("p4e9@;FImZ8[")
+        escg.open()
+
+        self.eventsmodel = QtSql.QSqlRelationalTableModel(self.ui.Event_Table)
+        self.eventsmodel.setTable("events")
+        self.eventsmodel.setRelation(7, QtSql.QSqlRelation("games", "id", "name"))
+        self.eventsmodel.setRelation(6, QtSql.QSqlRelation("players", "id", "handle"))
+        self.eventsmodel.setHeaderData(0, QtCore.Qt.Horizontal, QtCore.QVariant(""))
+        self.eventsmodel.setHeaderData(1, QtCore.Qt.Horizontal, QtCore.QVariant("Name"))
+        self.eventsmodel.setHeaderData(2, QtCore.Qt.Horizontal, QtCore.QVariant("Start"))
+        self.eventsmodel.setHeaderData(3, QtCore.Qt.Horizontal, QtCore.QVariant("End"))
+        self.eventsmodel.setHeaderData(4, QtCore.Qt.Horizontal, QtCore.QVariant("Location"))
+        self.eventsmodel.setHeaderData(5, QtCore.Qt.Horizontal, QtCore.QVariant("Shortname"))
+        self.eventsmodel.setHeaderData(6, QtCore.Qt.Horizontal, QtCore.QVariant("Added By"))
+        self.eventsmodel.setHeaderData(7, QtCore.Qt.Horizontal, QtCore.QVariant("Game"))
+        self.eventsmodel.select()
+        self.ui.Event_Table.setModel(self.eventsmodel)
+        self.ui.Event_Table.setColumnHidden(0,1)
+        self.ui.Event_Table.setColumnWidth(0, 30)
+        self.ui.Event_Table.setAlternatingRowColors(True)
+        self.ui.Event_Table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ui.Event_Table.horizontalHeader().setStretchLastSection(True)
+        self.ui.Event_Table.verticalHeader().setVisible(False)
+
+        self.TeamsTableModel = QtSql.QSqlRelationalTableModel(self.ui.Teams_Table)
+        self.TeamsTableModel.setTable("teams")
+        self.TeamsTableModel.setRelation(7, QtSql.QSqlRelation("players", "id", "handle"))
+        self.TeamsTableModel.setHeaderData(0, QtCore.Qt.Horizontal, QtCore.QVariant(""))
+        self.TeamsTableModel.setHeaderData(1, QtCore.Qt.Horizontal, QtCore.QVariant(""))
+        self.TeamsTableModel.setHeaderData(2, QtCore.Qt.Horizontal, QtCore.QVariant("Team Name"))
+        self.TeamsTableModel.setHeaderData(3, QtCore.Qt.Horizontal, QtCore.QVariant("Tag"))
+        self.TeamsTableModel.setHeaderData(4, QtCore.Qt.Horizontal, QtCore.QVariant("Short Tag"))
+        self.TeamsTableModel.setHeaderData(5, QtCore.Qt.Horizontal, QtCore.QVariant("Website"))
+        self.TeamsTableModel.setSort(1, 0) # Sorting by Col 1 and 0 for AAA
+        self.TeamsTableModel.select()
+        self.ui.Teams_Table.setModel(self.TeamsTableModel)
+        self.ui.Teams_Table.setColumnHidden(0,1)
+        self.ui.Teams_Table.setColumnHidden(4,1)
+        self.ui.Teams_Table.setColumnHidden(6,1)
+        self.ui.Teams_Table.setColumnHidden(7,1)
+        self.ui.Teams_Table.setColumnWidth(0, 30)
+        self.ui.Teams_Table.setColumnWidth(1, 30)
+        self.ui.Teams_Table.setAlternatingRowColors(True)
+        self.ui.Teams_Table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ui.Teams_Table.horizontalHeader().setStretchLastSection(True)
+        self.ui.Teams_Table.verticalHeader().setVisible(False)
+
+        self.PlayersTableModel = QtSql.QSqlRelationalTableModel(self.ui.Players_Table)
+        self.PlayersTableModel.setTable("players")
+        self.PlayersTableModel.setRelation(8, QtSql.QSqlRelation("games", "id", "shortname"))
+        self.PlayersTableModel.setHeaderData(0, QtCore.Qt.Horizontal, QtCore.QVariant("ID"))
+        self.PlayersTableModel.setHeaderData(1, QtCore.Qt.Horizontal, QtCore.QVariant("Handle"))
+        self.PlayersTableModel.setHeaderData(2, QtCore.Qt.Horizontal, QtCore.QVariant("First Name"))
+        self.PlayersTableModel.setHeaderData(3, QtCore.Qt.Horizontal, QtCore.QVariant("Last Name"))
+        self.PlayersTableModel.setHeaderData(4, QtCore.Qt.Horizontal, QtCore.QVariant("Date of Birth"))
+        self.PlayersTableModel.setHeaderData(5, QtCore.Qt.Horizontal, QtCore.QVariant("Country"))
+        self.PlayersTableModel.setHeaderData(6, QtCore.Qt.Horizontal, QtCore.QVariant("Twitter"))
+        self.PlayersTableModel.setHeaderData(8, QtCore.Qt.Horizontal, QtCore.QVariant("Game"))
+        self.PlayersTableModel.setSort(1, 0) # Sorting by Col 1 and 0 for AAA
+        self.PlayersTableModel.select()
+        self.ui.Players_Table.setModel(self.PlayersTableModel)
+
+
+        self.ui.Players_Table.setColumnHidden(0,1)
+        self.ui.Players_Table.setColumnHidden(7,1)
+        self.ui.Players_Table.setColumnHidden(9,1)
+        self.ui.Players_Table.setColumnHidden(10,1)
+        self.ui.Players_Table.setColumnHidden(11,1)
+        self.ui.Players_Table.setColumnHidden(12,1)
+        self.ui.Players_Table.setColumnHidden(13,1)
+        self.ui.Players_Table.setColumnHidden(14,1)
+        self.ui.Players_Table.setColumnHidden(15,1)
+        self.ui.Players_Table.setAlternatingRowColors(True)
+        self.ui.Players_Table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ui.Players_Table.horizontalHeader().setStretchLastSection(True)
+        self.ui.Players_Table.verticalHeader().setVisible(False)
+
+
+        self.RundownModel = QtSql.QSqlRelationalTableModel(self.ui.Schedule_Table)
+        self.RundownModel.setTable("rundown")
+        self.RundownModel.setHeaderData(0, QtCore.Qt.Horizontal, QtCore.QVariant(""))
+        self.RundownModel.setHeaderData(1, QtCore.Qt.Horizontal, QtCore.QVariant("Title"))
+        self.RundownModel.setHeaderData(2, QtCore.Qt.Horizontal, QtCore.QVariant("Team 1"))
+        self.RundownModel.setHeaderData(3, QtCore.Qt.Horizontal, QtCore.QVariant("Team 2"))
+        self.RundownModel.setHeaderData(4, QtCore.Qt.Horizontal, QtCore.QVariant("Start Time"))
+        self.RundownModel.setHeaderData(5, QtCore.Qt.Horizontal, QtCore.QVariant("Game"))
+        self.RundownModel.setHeaderData(6, QtCore.Qt.Horizontal, QtCore.QVariant("Event"))
+        self.RundownModel.setHeaderData(7, QtCore.Qt.Horizontal, QtCore.QVariant("Channel"))
+        self.RundownModel.setHeaderData(8, QtCore.Qt.Horizontal, QtCore.QVariant("Status"))
+        self.RundownModel.setRelation(5, QtSql.QSqlRelation("games", "id", "shortname"))
+        self.RundownModel.setRelation(2, QtSql.QSqlRelation("teams", "id", "name"))
+        self.RundownModel.setRelation(3, QtSql.QSqlRelation("teams", "id", "name"))
+        self.RundownModel.setRelation(6, QtSql.QSqlRelation("events", "id", "name"))
+        self.RundownModel.setSort(1, 0) # Sorting by Col 1 and 0 for AAA
+        self.RundownModel.select()
+        self.ui.Schedule_Table.setModel(self.RundownModel)
+        self.ui.Schedule_Table.setColumnHidden(0,1)
+        self.ui.Schedule_Table.setColumnWidth(0, 30)
+        self.ui.Schedule_Table.setColumnWidth(1, 300)
+        self.ui.Schedule_Table.setColumnWidth(5, 60)
+        self.ui.Schedule_Table.setColumnWidth(4, 128)
+        self.ui.Schedule_Table.setColumnWidth(7, 60)
+        self.ui.Schedule_Table.setAlternatingRowColors(True)
+        self.ui.Schedule_Table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ui.Schedule_Table.horizontalHeader().setStretchLastSection(True)
+        self.ui.Schedule_Table.verticalHeader().setVisible(False)
+
+        self.UpdateEvents()
+
+    @QtCore.pyqtSlot()
+    def AddRundown(self):
+        self.ModifyRundown.exec_()
+
+    def UpdateEvents(self):
+        # sql = "SELECT * FROM events"
+        # self.db = Database()
+        # eventlist = db.writeValues(sql)
+        # for event in eventlist:
+        #     print event
+        print "MOO"
+
+
+
+    def Schedule_Remove(self):
+        response = QtGui.QMessageBox.warning(self
+            , "Remove Rundown Item"
+            , "Are you sure you want to permanently remove this item?"
+            , QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if response == QtGui.QMessageBox.Yes:
+            pass
+        return
+
+    def showTime(self):
+        time = QtCore.QTime.currentTime()
+        text = time.toString('h:mm:ss A')
+        # if (time.second() % 2) == 0:
+        #     text = text[:2] + ' ' + text[3:]
+
+        self.ui.schedule_clock.setText(text)
+
     def LoadSettings(self):
         self.BGVideo = ""
         self.BUG = "BUG"
         self.ProcessCommand(self.LastCG)
         # PLAY 1-1 " + self.BGVideo + " LOOP
-        self.sendCommand("CLEAR 1\r\n\r\nPLAY 1-10 MUSIC LOOP")
+        self.sendCommand("CLEAR 1\r\nPLAY 1-10 BODY LOOP\r\n")
         self.TweetList = []
 
     def Quit(self):
@@ -60,11 +282,11 @@ class Main(QtGui.QMainWindow):
 
 
     def ProcessCommand(self, cmdnum=0):
-        print cmdnum
-        print self.LastCG
-        if self.LastCG == 0:
+        # print cmdnum
+        # print self.LastCG
+        # if self.LastCG == 0:
             # Hide Nothing
-            print "NO LAST BUTTON"
+            # print "NO LAST BUTTON"
 
         if self.LastCG == 1:
             cmd = "MIXER 1-10 FILL 0 0 1 1 25 easeinoutback"
@@ -236,21 +458,13 @@ class Main(QtGui.QMainWindow):
         TweetXML = '<templateData>'
         for SingleTweet in self.TweetList:
             TweetXML = TweetXML + """
-    <componentData id=\"fullname""" + str(tweets) + """\">
-		<data id="text" value=\"""" + SingleTweet.FullName + """\"/>
-	</componentData>
-	<componentData id="nickname""" + str(tweets) + """\">
-		<data id="text" value=\"@""" + SingleTweet.Nick + """\"/>
-	</componentData>
-	<componentData id="tweet""" + str(tweets) + """\">
-		<data id="text" value=\"""" + SingleTweet.TweetContent + """\"/>
-	</componentData>
-	<componentData id="imageContainer""" + str(tweets) + """\">
-		<data id="image" value=\"""" + SingleTweet.BiggerImage + """\"/>
-	</componentData>"""
+    <componentData id=\"fullname""" + str(tweets) + """\"><data id="text" value=\"""" + SingleTweet.FullName + """\"/></componentData>
+	<componentData id="nickname""" + str(tweets) + """\"><data id="text" value=\"@""" + SingleTweet.Nick + """\"/></componentData>
+	<componentData id="tweet""" + str(tweets) + """\"><data id="text" value=\"""" + SingleTweet.TweetContent + """\"/></componentData>
+	<componentData id="imageContainer""" + str(tweets) + """\"><data id="image" value=\"""" + SingleTweet.BiggerImage + """\"/></componentData>\n"""
             tweets = tweets + 1
         TweetXML = TweetXML + '\n</templateData>'
-        with open("templates/data.xml", "wb") as f:
+        with open("templates/tweets.xml", "wb") as f:
             f.write(TweetXML.encode("UTF-8"))
             print "XML SAVED"
 

@@ -394,12 +394,12 @@ QTreeWidget::branch:open:has-children
 /*
  * QTableWidget
  */
-QTableWidget
+QTableWidget, QTableView
 {
     background-color: rgba(55, 55, 55, 255);
     border-width: 1px;
 }
-QTableWidget::item:selected
+QTableWidget::item:selected, QTableView::item:selected
 {
     background-color: rgba(80, 80, 80, 255);
     color: rgba(255, 255, 255, 255);
@@ -566,6 +566,29 @@ QFileDialog QPushButton
 {
     min-height: 12px;
 }
+
+#controller QPushButton
+{
+    font: 75 15pt "DINPro-Bold";
+    border-width: 1px;
+    padding-bottom: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 3px;
+}
+
+#controller #con_scedule QPushButton { border-color: rgba(244,140,54,255); }
+#controller #con_team QPushButton { border-color: rgba(31,162,244,255); }
+#controller #con_player QPushButton { border-color: rgba(222,102,44,255); }
+#controller #con_event QPushButton { border-color: rgba(5,105,206,255); }
+#controller #con_twitter QPushButton { border-color: rgba(170,221,255,255); }
+
+#controller #con_scedule QPushButton:checked { background-color: rgba(244,140,54,255); }
+#controller #con_team QPushButton:checked { background-color: rgba(31,162,244,255); }
+#controller #con_player QPushButton:checked { background-color: rgba(222,102,44,255); }
+#controller #con_event QPushButton:checked { background-color: rgba(5,105,206,255); }
+#controller #con_twitter QPushButton:checked { background-color: rgba(170,221,255,255); }
+
 
 /*
  * QToolButton
