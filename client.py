@@ -24,10 +24,10 @@ logging.info('Program Launched')
 
 class Database():
     def __init__(self):
-        self.db_host = "eknowles.com"
-        self.db_user = "admin_escg"
-        self.db_pass = "p4e9@;FImZ8["
-        self.db_name = "admin_escg"
+        self.db_host = ""
+        self.db_user = ""
+        self.db_pass = ""
+        self.db_name = ""
 
     def openConn(self):
         self.db = MySQLdb.connect(self.db_host, self.db_user, self.db_pass, self.db_name)
